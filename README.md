@@ -35,13 +35,13 @@ Trước khi chạy dự án, cần cài đặt Node.js, Dapr CLI và Docker. Đ
 
 ### Chạy Service A (CRUD API):
 #### Sử dụng lệnh: 
-dapr run --app-id service-a --app-port 4000 --dapr-http-port 3500 npm run start:dev
+* dapr run --app-id service-a --app-port 4000 --dapr-http-port 3500 npm run start:dev
 
 Sau khi chạy, Service A lắng nghe tại cổng 4000. Các API có thể được gọi trực tiếp qua cổng này hoặc được invoke thông qua Dapr bằng Dapr HTTP port.
 
 ### Chạy Service B (Web + Auth):
 #### Sử dụng lệnh: 
-dapr run --app-id service-b --app-port 5000 --dapr-http-port 3501 npm run start:dev
+* dapr run --app-id service-b --app-port 5000 --dapr-http-port 3501 npm run start:dev
 
 Service B chạy tại cổng 5000 và sử dụng Dapr sidecar riêng để gọi Service A thông qua Service Invocation.
 
