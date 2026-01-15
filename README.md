@@ -1,110 +1,70 @@
-# NestJS – Casdoor – Directus – Dapr Demo
+NESTJS – CASDOOR – DIRECTUS – DAPR DEMO
 
-## 1. Overview
+1. OVERVIEW
 
-Dự án gồm **2 service chính** chạy theo mô hình microservice và giao tiếp với nhau qua **Dapr Service Invocation**:
+Dự án được xây dựng theo mô hình microservice, gồm hai service chính giao tiếp với nhau thông qua Dapr Service Invocation.
 
-### 🔹 Service A (service-a)
+Service A (service-a) đóng vai trò là service xử lý dữ liệu. Service này cung cấp các API CRUD và kết nối trực tiếp với Directus để thao tác dữ liệu (items). Service A không xử lý giao diện và không đảm nhiệm chức năng đăng nhập.
 
-* Chứa **API CRUD**
-* Kết nối **Directus** để thao tác dữ liệu (items)
-* Cung cấp các endpoint như:
+Các API tiêu biểu của Service A bao gồm:
 
-  * `GET /posts`
-  * `POST /posts`
-  * `PATCH /posts/:id`
-  * `DELETE /posts/:id`
-* Không xử lý giao diện hay đăng nhập
+* Lấy danh sách dữ liệu (GET /posts)
+* Thêm mới dữ liệu (POST /posts)
+* Cập nhật dữ liệu (PATCH /posts/:id)
+* Xóa dữ liệu (DELETE /posts/:id)
 
-### 🔹 Service B (service-b)
+Service B (service-b) là web chính của hệ thống. Service này chịu trách nhiệm xử lý đăng nhập, xác thực người dùng và điều hướng giao diện. Service B tích hợp Casdoor để thực hiện đăng nhập theo cơ chế OAuth. Sau khi người dùng đăng nhập thành công, Service B sẽ gọi các API CRUD của Service A thông qua Dapr thay vì gọi trực tiếp bằng port.
 
-* Là **web chính / gateway**
-* Tích hợp **Casdoor** để đăng nhập (OAuth)
-* Có các route web như:
+Các đường dẫn chính của Service B gồm:
 
-  * `/` (home)
-  * `/na` (page cần login)
-  * `/auth/login`
-  * `/auth/callback`
-* Sau khi đăng nhập thành công, Service B sẽ **invoke API của Service A** thông qua Dapr
+* Trang chủ: /
+* Trang yêu cầu đăng nhập: /na
+* Đăng nhập: /auth/login
+* Callback sau đăng nhập: /auth/callback
 
-> Service B **không gọi trực tiếp Service A bằng port**, mà gọi qua Dapr sidecar.
+Mô hình này giúp tách biệt rõ ràng giữa service xử lý dữ liệu và service xử lý giao diện, đồng thời minh họa cách các microservice giao tiếp với nhau thông qua Dapr.
 
----
+2. THƯ VIỆN VÀ CÔNG NGHỆ SỬ DỤNG
 
-## 2. Thư viện & công nghệ sử dụng
+Ngôn ngữ và framework:
 
-### Backend
+* Node.js
+* TypeScript
+* NestJS
 
-* **Node.js**
-* **NestJS**
-* **TypeScript**
+Kiến trúc và giao tiếp:
 
-### Giao tiếp & kiến trúc
+* Dapr (Service Invocation)
+* Axios (HTTP client)
 
-* **Dapr** (Service Invocation, Pub/Sub – nếu có)
-* **Axios** (HTTP client)
+Xác thực và quản lý dữ liệu:
 
-### Auth & CMS
+* Casdoor (OAuth, SSO)
+* Directus (Headless CMS)
 
-* **Casdoor** (OAuth / SSO)
-* **Directus** (Headless CMS)
+Các thư viện hỗ trợ khác:
 
-### Khác
+* express-session (quản lý session đăng nhập)
+* Redis (sử dụng cho pub/sub hoặc cache nếu cần)
 
-* **express-session** (lưu session đăng nhập)
-* **Redis** (nếu dùng cho pub/sub hoặc session)
+3. CÁCH CHẠY DỰ ÁN
 
----
+Trước khi chạy dự án, cần cài đặt Node.js, Dapr CLI và Docker. Đồng thời khởi động các service phụ trợ như Directus, Casdoor và Redis.
 
-## 3. Cách chạy dự án
+Chạy Service A (CRUD API):
+Sử dụng lệnh: dapr run --app-id service-a --app-port 4000 --dapr-http-port 3500 npm run start:dev
 
-### 3.1 Chuẩn bị
+Sau khi chạy, Service A lắng nghe tại cổng 4000. Các API có thể được gọi trực tiếp qua cổng này hoặc được invoke thông qua Dapr bằng Dapr HTTP port.
 
-* Đã cài:
+Chạy Service B (Web + Auth):
+Sử dụng lệnh: dapr run --app-id service-b --app-port 5000 --dapr-http-port 3501 npm run start:dev
 
-  * Node.js (>= 18)
-  * Dapr CLI
-  * Docker (để chạy Directus, Redis, Casdoor)
+Service B chạy tại cổng 5000 và sử dụng Dapr sidecar riêng để gọi Service A thông qua Service Invocation.
 
-* Khởi động các service phụ trợ:
+4. GHI CHÚ
 
-  * Directus
-  * Casdoor
-  * Redis
+Mỗi service trong hệ thống có một Dapr sidecar riêng. Khi sử dụng Service Invocation, luôn gọi thông qua Dapr HTTP port, không gọi trực tiếp qua app port. Dự án được tổ chức theo mô hình monorepo, trong đó Service A và Service B cùng nằm trong một Git repository.
 
----
+5. MỤC ĐÍCH DEMO
 
-### 3.2 Chạy Service A (CRUD API)
-
-dapr run --app-id service-b --app-port 5000 --dapr-http-port 3501 npm run start:devcalhost:4000`
-
-* Invoke qua Dapr:
-  dapr run --app-id service-b --app-port 5000 --dapr-http-port 3501 npm run start:dev## 3.3 Chạy Service B (Web + Auth)
-
-dapr run --app-id service-b --app-port 5000 --dapr-http-portcalhost:5000`
-
-* Service B gọi Service A qua:
-
-```
-http://localhost:3501/v1.0/invoke/service-a/method/posts
-```
-
----
-
-## 4. Ghi chú
-
-* Mỗi service **có Dapr sidecar riêng**
-* Không dùng app port để gọi `/v1.0/invoke`
-* Repo sử dụng **monorepo** (ServiceA & ServiceB chung 1 Git repo)
-
----
-
-## 5. Mục đích demo
-
-* Hiểu kiến trúc microservice với Dapr
-* Demo OAuth login với Casdoor
-* Tách biệt rõ:
-
-  * Service xử lý dữ liệu (A)
-  * Service xử lý web & auth (B)
+Dự án nhằm minh họa cách xây dựng hệ thống microservice với NestJS và Dapr, cách tích hợp xác thực người dùng bằng Casdoor, cũng như cách tách biệt rõ ràng giữa service xử lý dữ liệu và service xử lý giao diện trong một hệ thống phân tán.
