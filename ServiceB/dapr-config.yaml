@@ -1,0 +1,13 @@
+﻿# components/pubsub.yaml
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: my-pubsub
+spec:
+  type: pubsub.redis
+  version: v1
+  metadata:
+  - name: redisHost
+    value: localhost:6379  # thay bằng Redis thật nếu có
+  - name: redisPassword
+    value: ""

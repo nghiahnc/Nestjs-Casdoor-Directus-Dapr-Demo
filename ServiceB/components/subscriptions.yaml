@@ -1,0 +1,10 @@
+apiVersion: dapr.io/v1alpha1
+kind: Subscription
+metadata:
+  name: content-updated-sub
+spec:
+  pubsubname: my-pubsub
+  topic: content-updated
+  route: /content-updated
+scopes:
+- nghiatest

@@ -1,0 +1,10 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\src",
+    "\\src\\auth",
+    "\\src\\dapr"
+  ],
+  "SelectedNode": "\\src\\auth\\casdoor.service.ts",
+  "PreviewInSolutionExplorer": false
+}
